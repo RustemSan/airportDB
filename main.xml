@@ -1,0 +1,795 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="./sproject_html.xsl"?>
+<!DOCTYPE sproject SYSTEM "sproject.dtd">
+<sproject>
+    <course database="Oracle" version="11">
+        <cname>Databázové systémy</cname>
+            <code>BI-DBS.21</code>
+            <semester>B232</semester>
+            <seminar>Čtvrtek 9:15, Sudý týden, paralelka 1247713527605</seminar>
+    </course>
+        <author>
+            <aname>Rustem Sandibekov</aname>
+            <uname>sandirus</uname>
+            <email>sandirus@fit.cvut.cz</email>
+        </author>
+    <content>
+        <declaration>I declare that I have developed my semestral work independently. All the sources I used are listed in the section References.</declaration>
+            <title>Aeroport &quot;Narnie&quot;</title>
+        <description>
+            <title>Popis</title>
+                    <para>Projekt databáze **letiště “Narnie”** pokrývá všechny aspekty provozu letiště a zajišťuje bezproblémovou interakci mezi různými službami a odděleními. Informace o cestujících zahrnují základní  **osobní údaje.**</para>
+                    <para></para>
+                    <para>**Informace o letenkách** jsou úzce propojeny s **cestujícími a lety**, což umožňuje pohodlnou správu rezervací, změn rezervací a zrušení letů. Letenky odrážejí všechny podrobnosti o cestě včetně **třídy letu, vybraného sedadla a ceny.**</para>
+                    <para></para>
+                    <para>Podrobné informace o letadlech, včetně jejich technického stavu a historie údržby, jsou zásadní pro zajištění bezpečnosti letů. Databáze umožňuje sledovat **plány údržby a oprav letadel** i jejich aktuální připravenost k letu.</para>
+                    <para></para>
+                    <para>**Letecké společnosti** působící na letišti Narnia jsou v databázi zastoupeny **s úplnými kontaktními údaji a informacemi** o nabízených službách a letech. To usnadňuje koordinaci mezi letištěm a leteckými společnostmi a umožňuje cestujícím získávat aktuální informace o svých letech.</para>
+                    <para></para>
+                    <para>Kritickými místy pro zajištění hladkého nástupu na palubu a odbavení jsou letištní brány a odbavení. Informace o branách zahrnují jejich čísla, stav a rozvrh využití, což pomáhá efektivně rozdělovat toky cestujících a minimalizovat zpoždění.</para>
+                    <para></para>
+                    <para>Dalším důležitým aspektem, který vyžaduje pečlivou správu, jsou **zavazadla**. Systém sledování zavazadel zajišťuje, že každý kufr lze sledovat od jeho předání až po vyzvednutí, což výrazně snižuje riziko ztráty a urychluje proces odbavení zavazadel.</para>
+                    <para></para>
+                    <para>Klíčovými prvky pro zajištění kvalitních služeb a bezpečnosti jsou **posádka a obslužný personál**. Informace o personálu zahrnují **kvalifikaci, certifikáty a letové plány**, což umožňuje efektivní řízení zdrojů.</para>
+                    <para></para>
+                    <para>Bezpečnostní opatření letiště Narnie a bezpečnostní strážci prosazují zásady a postupy, zabraňují nezákonným činnostem a zajišťují bezpečnost cestujících a personálu. Údaje o bezpečnostních kontrolách, incidentech a reakcích jsou rozhodující pro zlepšování bezpečnostních systémů.</para>
+                    <para></para>
+                    <para>Databáze **letiště  &quot;Narnia&quot;** tak představuje **komplexní systém řízení**, který umožňuje koordinovat práci všech letištních služeb a zajišťuje vysokou úroveň služeb pro cestující.</para>
+        </description>
+        <data_model>
+            <title>Conceptual schema</title>
+            <dm_picture>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="conceptual_schema.png"/>
+                    </imageobject>
+                </mediaobject>
+            </dm_picture>
+            <dm_discussion>
+                        <para>1.Pilot nemůže provádět dva lety současně.</para>
+                        <para>2.Stuardessa nemůže provádět dva lety současně.</para>
+                        <para>3.Letadlo nemůže odbavovat několik letů najednou.</para>
+            </dm_discussion>
+        </data_model>
+        <relational_model>
+            <title>Relační schema</title>
+            <rm_picture>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="relational_schema.png"/>
+                    </imageobject>
+                </mediaobject>
+            </rm_picture>
+        </relational_model>
+        <queries>
+            <title>Dotazy</title>
+            <dotazy>
+                    <dotaz dotaz_id="D1">
+                        <popis_dotazu>
+                                <para>Získejte všechna letadla s údaji o výrobě po roce 2015. </para>
+                        </popis_dotazu>
+                            <relacni_algebra>plane(year_of_manufacture &gt; 2011)</relacni_algebra>
+                            <sql>SELECT *
+FROM public.Plane
+WHERE year_of_manufacture &gt; 2011;
+</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D2">
+                        <popis_dotazu>
+                                <para>Zobrazit všechny zaměstnance s pozicí &quot;Nurse&quot; . </para>
+                        </popis_dotazu>
+                            <relacni_algebra>employee(position = &apos;Nurse&apos;)</relacni_algebra>
+                            <sql>SELECT * FROM Employee WHERE position = &apos;Nurse&apos;;
+</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D3">
+                        <popis_dotazu>
+                                <para>Zobrazit všechny letecke spolecnosti ktere maji lety s dobou trvání delší než 300 minut . </para>
+                        </popis_dotazu>
+                            <relacni_algebra>{{{flight*Plane}(duration &gt; 300)[id_company]}*aviacompany}[company_name]</relacni_algebra>
+                            <sql>SELECT DISTINCT company_name
+FROM Aviacompany
+WHERE id_company IN (
+    SELECT p.id_company
+    FROM Plane p
+    INNER JOIN Flight f ON p.id_plane = f.id_plane
+    WHERE f.duration &gt; 300
+);
+
+
+SELECT DISTINCT ac.company_name
+FROM Aviacompany ac
+JOIN Plane p ON ac.id_company = p.id_company
+JOIN Flight f ON p.id_plane = f.id_plane
+WHERE f.duration &gt; 300;
+
+
+SELECT DISTINCT ac.company_name
+FROM Aviacompany ac
+WHERE EXISTS (
+    SELECT 1
+    FROM Plane p
+    JOIN Flight f ON p.id_plane = f.id_plane
+    WHERE p.id_company = ac.id_company AND f.duration &gt; 300
+);</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D4">
+                        <popis_dotazu>
+                                <para>Zobrazení jedinečného seznamu všech letů s identifikátorem každého letu.  </para>
+                        </popis_dotazu>
+                            <relacni_algebra>Plane*&gt;Flight
+</relacni_algebra>
+                            <sql>SELECT DISTINCT id_flight,
+                id_plane,
+                departure_time,
+                arrival_time,
+                duration,
+                status
+FROM FLIGHT
+NATURAL JOIN PLANE;</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D5">
+                        <popis_dotazu>
+                                <para>Cestující, který letěl všemi lety . 
+</para>
+                        </popis_dotazu>
+                            <relacni_algebra>{{ticket[id_passenger, id_flight]÷flight[id_flight]}
+*passenger}</relacni_algebra>
+                            <sql>SELECT *
+FROM Passenger p
+WHERE (
+    SELECT COUNT(DISTINCT f.id_flight)
+    FROM Flight f
+    JOIN Ticket t ON f.id_flight = t.id_flight
+    WHERE t.id_passenger = p.id_passenger
+) = (
+    SELECT COUNT(*)
+    FROM Flight
+);</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D6">
+                        <popis_dotazu>
+                                <para>Seznam pasažérů, kteří létali pouze na modelu letadla &quot;Audi&quot;  </para>
+                        </popis_dotazu>
+                            <relacni_algebra>{ticket*passenger*flight*plane}(model=&apos;Audi&apos;)[id_passenger,full_name]
+\
+{ticket*passenger*flight*plane}(model!=&apos;Audi&apos;)[id_passenger,full_name]
+</relacni_algebra>
+                            <sql>SELECT DISTINCT id_passenger,
+                full_name
+FROM TICKET
+NATURAL JOIN PASSENGER
+NATURAL JOIN FLIGHT
+NATURAL JOIN PLANE
+WHERE model = &apos;Audi&apos;
+EXCEPT
+SELECT DISTINCT id_passenger,
+                full_name
+FROM TICKET TICKET1
+NATURAL JOIN PASSENGER PASSENGER1
+NATURAL JOIN FLIGHT FLIGHT1
+NATURAL JOIN PLANE PLANE1
+WHERE model != &apos;Audi&apos;;</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D8">
+                        <popis_dotazu>
+                                <para>Kolik zavazadel bylo minulý měsíc odbaveno na letišti? </para>
+                        </popis_dotazu>
+                            <sql>SELECT COUNT(*) AS total_baggage
+FROM Baggage b
+JOIN Ticket t ON b.id_ticket = t.id_ticket
+JOIN Flight f ON t.id_flight = f.id_flight
+WHERE CAST(f.departure_time AS timestamp) &gt;= DATE_TRUNC(&apos;month&apos;, CURRENT_DATE - INTERVAL &apos;1 month&apos;)
+AND CAST(f.departure_time AS timestamp) &lt; DATE_TRUNC(&apos;month&apos;, CURRENT_DATE);
+</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D12">
+                        <popis_dotazu>
+                                <para>Vypiste seznam všech zaměstnanců a pilotů s jejich plným jménem, pozicí, číslem licence a počtem nalétaných hodin, seřazený podle plného jména </para>
+                        </popis_dotazu>
+                            <sql>SELECT e.full_name, e.position, p.license_number, p.flight_hours
+FROM Employee e
+FULL JOIN Pilot p ON e.id_employee = p.id_employee
+ORDER BY e.full_name;
+</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D13">
+                        <popis_dotazu>
+                                <para>Pilot, kterému při všech letech asistovala pouze letuška s osobním číslem 52 </para>
+                        </popis_dotazu>
+                            <sql>SELECT e.full_name
+FROM Employee e
+JOIN Pilot p ON e.id_employee = p.id_employee
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Pilot_flight pf
+    LEFT JOIN Stewardess_flight sf ON pf.id_flight = sf.id_flight
+    WHERE pf.id_employee = p.id_employee AND (sf.id_employee &lt;&gt; 10 OR sf.id_employee IS NULL)
+);
+</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D15">
+                        <popis_dotazu>
+                                <para>Vytvoření/nahrazení zobrazení, které zobrazí pouze zaměstnance s platem nad 1000 korun, kteří jsou piloty </para>
+                        </popis_dotazu>
+                            <sql>CREATE OR REPLACE VIEW PilotsWithHighSalary AS
+SELECT e.id_employee, e.full_name, e.position, e.salary
+FROM Employee e
+JOIN Pilot p ON e.id_employee = p.id_employee
+WHERE e.salary &gt; 100;</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D14">
+                        <popis_dotazu>
+                                <para>Vypište všechny lety bohatých letušek. </para>
+                        </popis_dotazu>
+                            <sql>Begin;
+WITH RichPilots AS (
+    SELECT p.id_employee
+    FROM Pilot p
+    JOIN Employee e ON p.id_employee = e.id_employee
+    WHERE e.salary &gt; 9950
+)
+
+
+SELECT COUNT(id_employee)
+FROM RichPilots;
+
+
+DELETE FROM Pilot
+WHERE id_employee IN (SELECT id_employee FROM PilotsWithHighSalary);
+
+SELECT COUNT(id_employee)
+FROM Pilot
+WHERE id_employee IN (SELECT id_employee FROM PilotsWithHighSalary);
+Rollback;</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D22">
+                        <popis_dotazu>
+                                <para>Vyber z kategorie &quot;PilotsWithHighSalary&quot; </para>
+                        </popis_dotazu>
+                            <sql>Begin;
+SELECT * FROM PilotsWithHighSalary;
+SELECT f.*
+FROM Flight f
+JOIN Pilot_flight pf ON f.id_flight = pf.id_flight
+WHERE EXISTS (
+    SELECT 1
+    FROM PilotsWithHighSalary p
+    WHERE p.id_employee = pf.id_employee
+);
+Rollback;</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D16">
+                        <popis_dotazu>
+                                <para>Pro každé letadlo (číslo letadla), které provedl pilot s osobním číslem 25 , zjistěte, kolik letů provedl tento pilot a kolik letů mělo toto letadlo. Nás však zajímají ta letadla, u kterých pilot s osobním číslem 25 provedl maximálně 5 letů. Seřaďte získané údaje sestupně podle počtu provedených letů. </para>
+                        </popis_dotazu>
+                            <sql>WITH PilotFlights AS (
+    SELECT f.id_plane, COUNT(*) AS num_flights_by_pilot
+    FROM Flight f
+    WHERE f.id_flight = 10
+    GROUP BY f.id_plane
+    HAVING COUNT(*) &lt;= 5
+),
+TotalFlights AS (
+    SELECT f.id_plane, COUNT(*) AS total_flights
+    FROM Flight f
+    GROUP BY f.id_plane
+)
+SELECT pf.id_plane,
+       pf.num_flights_by_pilot,
+       tf.total_flights
+FROM PilotFlights pf
+JOIN TotalFlights tf ON pf.id_plane = tf.id_plane
+ORDER BY pf.num_flights_by_pilot DESC;
+</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D17">
+                        <popis_dotazu>
+                                <para>Letecká společnost, která provozovala všechny lety </para>
+                        </popis_dotazu>
+                            <sql>SELECT ac.company_name
+FROM Aviacompany ac
+WHERE NOT EXISTS (
+
+    SELECT 1
+    FROM Flight f
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM Flight f2
+        WHERE f2.id_flight = f.id_flight AND ac.id_company = ac.id_company
+    )
+);
+</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D18">
+                        <popis_dotazu>
+                                <para>Pilot pracující pro leteckou společnost číslo &quot;10&quot; . </para>
+                        </popis_dotazu>
+                            <sql>SELECT e.full_name, p.license_number, p.qualification, p.flight_hours
+FROM Employee e
+LEFT JOIN Pilot p ON e.id_employee = p.id_employee
+WHERE e.id_company = 10;</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D19">
+                        <popis_dotazu>
+                                <para>Vypište seznam všech cestujících, kteří letěli výhradně buď modelem letadla s názvem „Audi“, nebo modelem letadla s názvem „Honda“, ale ne oběma. </para>
+                        </popis_dotazu>
+                            <sql>WITH AudiPassengers AS (
+    SELECT DISTINCT t.id_passenger
+    FROM Ticket t
+    JOIN Flight f ON t.id_flight = f.id_flight
+    JOIN Plane p ON f.id_plane = p.id_plane
+    WHERE p.model = &apos;Audi&apos;
+),
+HondaPassengers AS (
+    SELECT DISTINCT t.id_passenger
+    FROM Ticket t
+    JOIN Flight f ON t.id_flight = f.id_flight
+    JOIN Plane p ON f.id_plane = p.id_plane
+    WHERE p.model = &apos;Honda&apos;
+)
+SELECT p.id_passenger, p.full_name
+FROM Passenger p
+JOIN (
+    SELECT id_passenger
+    FROM AudiPassengers
+    UNION
+    SELECT id_passenger
+    FROM HondaPassengers
+    EXCEPT
+    (
+        SELECT id_passenger
+        FROM AudiPassengers
+        INTERSECT
+        SELECT id_passenger
+        FROM HondaPassengers
+    )
+) AS UniquePassengers ON p.id_passenger = UniquePassengers.id_passenger;
+</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D20">
+                        <popis_dotazu>
+                                <para>Nahraďte všechny letušky s hodnocením vyšším než 60  slovem „Good Girl“. </para>
+                        </popis_dotazu>
+                            <sql>SELECT e.id_employee, e.full_name
+FROM Employee e
+JOIN Stewardess s ON e.id_employee = s.id_employee
+JOIN Stewardess_flight sf ON s.id_employee = sf.id_employee
+WHERE sf.feedback &gt; 60;
+
+UPDATE Employee e
+SET full_name = &apos;Good Girl&apos;
+WHERE id_employee IN (
+    SELECT s.id_employee
+    FROM Stewardess s
+    JOIN Stewardess_flight sf ON s.id_employee = sf.id_employee
+    WHERE sf.feedback &gt; 60
+);</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D21">
+                        <popis_dotazu>
+                                <para>Aviacompany bez employee . </para>
+                        </popis_dotazu>
+                            <relacni_algebra>aviacompany!*&gt;employee</relacni_algebra>
+                            <sql>SELECT DISTINCT *
+FROM EMPLOYEE
+EXCEPT
+SELECT DISTINCT id_employee,
+                id_company,
+                full_name,
+                position,
+                hire_date,
+                salary
+FROM EMPLOYEE
+NATURAL JOIN AVIACOMPANY;</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D23">
+                        <popis_dotazu>
+                                <para>Vytvořit úplný seznam všech možných kombinací pilotů a letušek . </para>
+                        </popis_dotazu>
+                            <sql>SELECT e_pilot.full_name AS PilotName, e_stewardess.full_name AS StewardessName
+FROM Employee e_pilot
+CROSS JOIN Employee e_stewardess
+JOIN Pilot p ON e_pilot.id_employee = p.id_employee
+JOIN Stewardess s ON e_stewardess.id_employee = s.id_employee;
+</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D24">
+                        <popis_dotazu>
+                                <para> Vytvořit nový let na základě posledního nevyřízeného letu, změnit jeho stav na „Plánovaný“ a nastavit aktuální datum a čas odletu </para>
+                        </popis_dotazu>
+                            <sql>BEGIN;
+SELECT COUNT(*) FROM Flight;
+INSERT INTO Flight (id_flight, departure_time, arrival_time, duration, status, id_plane)
+SELECT (SELECT MAX(id_flight) + 1 FROM Flight), 
+       NOW(),                                   
+       arrival_time,                            
+       duration,                                
+       &apos;Scheduled&apos;,                            
+       id_plane                                
+FROM Flight
+WHERE id_flight = (
+    SELECT id_flight
+    FROM Flight
+    WHERE status = &apos;In Progress&apos;                
+    ORDER BY departure_time DESC
+    LIMIT 1
+);
+SELECT COUNT(*) FROM Flight;
+ROLLBACK;</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D25">
+                        <popis_dotazu>
+                                <para>Kontrola dotazu kategorie D1 v SQL </para>
+                        </popis_dotazu>
+                            <sql>SELECT p.*
+FROM Passenger p
+WHERE (
+    SELECT COUNT(DISTINCT f.id_flight)
+    FROM Flight f
+    JOIN Ticket t ON f.id_flight = t.id_flight
+    WHERE t.id_passenger = p.id_passenger
+) = (
+    SELECT COUNT(*)
+    FROM Flight
+)
+EXCEPT
+SELECT p.*
+FROM Passenger p
+WHERE (
+    SELECT COUNT(DISTINCT f.id_flight)
+    FROM Flight f
+    JOIN Ticket t ON f.id_flight = t.id_flight
+    WHERE t.id_passenger = p.id_passenger
+) = (
+    SELECT COUNT(*)
+    FROM Flight
+);</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D26">
+                        <popis_dotazu>
+                                <para>Vypište cestujícího, který má zavazadlo vážící více než 20 kg.</para>
+                        </popis_dotazu>
+                            <relacni_algebra>{{passenger*ticket}*baggage}(weight &gt; 20)[full_name]</relacni_algebra>
+                            <sql>SELECT DISTINCT full_name
+FROM PASSENGER
+NATURAL JOIN TICKET
+NATURAL JOIN BAGGAGE
+WHERE weight &gt; 20;</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D27">
+                        <popis_dotazu>
+                                <para>Letenky na let letadlem modelu &quot;Mazda&quot;.</para>
+                        </popis_dotazu>
+                            <sql>SELECT t.id_ticket, t.seat_number, f.id_flight, p.model
+FROM Ticket t
+JOIN Flight f ON t.id_flight = f.id_flight
+JOIN Plane p ON f.id_plane = p.id_plane
+WHERE p.model = &apos;Mazda&apos;;
+</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D28">
+                        <popis_dotazu>
+                                <para>Všechny modely letadel &quot;Dodge&quot;</para>
+                        </popis_dotazu>
+                            <relacni_algebra>plane(model=&apos;Dodge&apos;)</relacni_algebra>
+                            <sql>SELECT DISTINCT *
+FROM PLANE
+WHERE model = &apos;Dodge&apos;;</sql>
+                    </dotaz>
+                    <dotaz dotaz_id="D29">
+                        <popis_dotazu>
+                                <para>Všichni cestující, kteří žijí v &quot;Hobo&quot;.</para>
+                        </popis_dotazu>
+                            <relacni_algebra>passenger(city=&apos;Hobo&apos;)</relacni_algebra>
+                            <sql>SELECT DISTINCT *
+FROM PASSENGER
+WHERE city = &apos;Hobo&apos;;</sql>
+                    </dotaz>
+            </dotazy>
+            <pokryti_dotazu>
+                        <radek>
+                            <kategorie>A</kategorie>
+                            <odkazy>
+                                    <link url="#D3">D3</link>
+                                    <link url="#D4">D4</link>
+                                    <link url="#D5">D5</link>
+                                    <link url="#D8">D8</link>
+                                    <link url="#D12">D12</link>
+                                    <link url="#D15">D15</link>
+                                    <link url="#D14">D14</link>
+                                    <link url="#D22">D22</link>
+                                    <link url="#D16">D16</link>
+                                    <link url="#D18">D18</link>
+                                    <link url="#D19">D19</link>
+                                    <link url="#D20">D20</link>
+                                    <link url="#D21">D21</link>
+                                    <link url="#D23">D23</link>
+                                    <link url="#D25">D25</link>
+                                    <link url="#D26">D26</link>
+                                    <link url="#D27">D27</link>
+                            </odkazy>
+                            <kategorie_popis>A - Pozitivní dotaz nad spojením alespoň dvou tabulek</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>AR</kategorie>
+                            <odkazy>
+                                    <link url="#D3">D3</link>
+                                    <link url="#D4">D4</link>
+                                    <link url="#D5">D5</link>
+                                    <link url="#D21">D21</link>
+                                    <link url="#D26">D26</link>
+                            </odkazy>
+                            <kategorie_popis>A (RA) - Pozitivní dotaz nad spojením alespoň dvou tabulek</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>B</kategorie>
+                            <odkazy>
+                                    <link url="#D21">D21</link>
+                            </odkazy>
+                            <kategorie_popis>B - Negativní dotaz nad spojením alespoň dvou tabulek</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>C</kategorie>
+                            <odkazy>
+                                    <link url="#D6">D6</link>
+                            </odkazy>
+                            <kategorie_popis>C - Vyber ty, kteří mají vztah POUZE k ...</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>D1</kategorie>
+                            <odkazy>
+                                    <link url="#D5">D5</link>
+                            </odkazy>
+                            <kategorie_popis>D1 - Vyber ty, kteří/které jsou ve vztahu se všemi - dotaz s univerzální kvantifikací</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>D2</kategorie>
+                            <odkazy>
+                                    <link url="#D25">D25</link>
+                            </odkazy>
+                            <kategorie_popis>D2 - Kontrola výsledku dotazu z kategorie D1</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>F1</kategorie>
+                            <odkazy>
+                                    <link url="#D3">D3</link>
+                                    <link url="#D5">D5</link>
+                                    <link url="#D8">D8</link>
+                                    <link url="#D13">D13</link>
+                                    <link url="#D15">D15</link>
+                                    <link url="#D14">D14</link>
+                                    <link url="#D22">D22</link>
+                                    <link url="#D16">D16</link>
+                                    <link url="#D19">D19</link>
+                                    <link url="#D20">D20</link>
+                                    <link url="#D23">D23</link>
+                                    <link url="#D25">D25</link>
+                                    <link url="#D27">D27</link>
+                            </odkazy>
+                            <kategorie_popis>F1 - JOIN ON</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>F1R</kategorie>
+                            <odkazy>
+                                    <link url="#D3">D3</link>
+                                    <link url="#D5">D5</link>
+                            </odkazy>
+                            <kategorie_popis>F1 (RA) - JOIN ON</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>F2</kategorie>
+                            <odkazy>
+                                    <link url="#D4">D4</link>
+                                    <link url="#D6">D6</link>
+                                    <link url="#D21">D21</link>
+                                    <link url="#D26">D26</link>
+                            </odkazy>
+                            <kategorie_popis>F2 - NATURAL JOIN|JOIN USING</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>F3</kategorie>
+                            <odkazy>
+                                    <link url="#D23">D23</link>
+                            </odkazy>
+                            <kategorie_popis>F3 - CROSS JOIN</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>F4</kategorie>
+                            <odkazy>
+                                    <link url="#D13">D13</link>
+                                    <link url="#D18">D18</link>
+                            </odkazy>
+                            <kategorie_popis>F4 - LEFT|RIGHT OUTER JOIN</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>F5</kategorie>
+                            <odkazy>
+                                    <link url="#D12">D12</link>
+                            </odkazy>
+                            <kategorie_popis>F5 - FULL (OUTER) JOIN</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>G1</kategorie>
+                            <odkazy>
+                                    <link url="#D3">D3</link>
+                                    <link url="#D5">D5</link>
+                                    <link url="#D13">D13</link>
+                                    <link url="#D14">D14</link>
+                                    <link url="#D22">D22</link>
+                                    <link url="#D17">D17</link>
+                                    <link url="#D20">D20</link>
+                                    <link url="#D24">D24</link>
+                                    <link url="#D25">D25</link>
+                            </odkazy>
+                            <kategorie_popis>G1 - Vnořený dotaz v klauzuli WHERE</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>G1R</kategorie>
+                            <odkazy>
+                                    <link url="#D3">D3</link>
+                                    <link url="#D5">D5</link>
+                            </odkazy>
+                            <kategorie_popis>G1 (RA) - Vnořený dotaz v klauzuli WHERE</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>G2</kategorie>
+                            <odkazy>
+                                    <link url="#D19">D19</link>
+                            </odkazy>
+                            <kategorie_popis>G2 - Vnořený dotaz v klauzuli FROM</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>G3</kategorie>
+                            <odkazy>
+                                    <link url="#D24">D24</link>
+                            </odkazy>
+                            <kategorie_popis>G3 - Vnořený dotaz v klauzuli SELECT</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>G4</kategorie>
+                            <odkazy>
+                                    <link url="#D3">D3</link>
+                                    <link url="#D13">D13</link>
+                                    <link url="#D22">D22</link>
+                                    <link url="#D17">D17</link>
+                            </odkazy>
+                            <kategorie_popis>G4 - Vztažený vnořený dotaz (EXISTS, NOT EXISTS)</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>G4R</kategorie>
+                            <odkazy>
+                                    <link url="#D3">D3</link>
+                            </odkazy>
+                            <kategorie_popis>G4 (RA) - Vztažený vnořený dotaz (EXISTS, NOT EXISTS)</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>H1</kategorie>
+                            <odkazy>
+                                    <link url="#D19">D19</link>
+                            </odkazy>
+                            <kategorie_popis>H1 - Množinové sjednocení - UNION</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>H2</kategorie>
+                            <odkazy>
+                                    <link url="#D6">D6</link>
+                                    <link url="#D19">D19</link>
+                                    <link url="#D21">D21</link>
+                                    <link url="#D25">D25</link>
+                            </odkazy>
+                            <kategorie_popis>H2 - Množinový rozdíl - MINUS nebo EXCEPT</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>H2R</kategorie>
+                            <odkazy>
+                                    <link url="#D6">D6</link>
+                                    <link url="#D21">D21</link>
+                            </odkazy>
+                            <kategorie_popis>H2 (RA) - Množinový rozdíl - MINUS nebo EXCEPT</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>H3</kategorie>
+                            <odkazy>
+                                    <link url="#D19">D19</link>
+                            </odkazy>
+                            <kategorie_popis>H3 - Množinový průnik - INTERSECT</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>I1</kategorie>
+                            <odkazy>
+                                    <link url="#D5">D5</link>
+                                    <link url="#D8">D8</link>
+                                    <link url="#D14">D14</link>
+                                    <link url="#D16">D16</link>
+                                    <link url="#D24">D24</link>
+                                    <link url="#D25">D25</link>
+                            </odkazy>
+                            <kategorie_popis>I1 - Agregační funkce (count|sum|min|max|avg)</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>I1R</kategorie>
+                            <odkazy>
+                                    <link url="#D5">D5</link>
+                            </odkazy>
+                            <kategorie_popis>I1 (RA) - Agregační funkce (count|sum|min|max|avg)</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>I2</kategorie>
+                            <odkazy>
+                                    <link url="#D16">D16</link>
+                            </odkazy>
+                            <kategorie_popis>I2 - Agregační funkce nad seskupenými řádky - GROUP BY (HAVING)</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>J</kategorie>
+                            <odkazy>
+                                    <link url="#D3">D3</link>
+                            </odkazy>
+                            <kategorie_popis>J - Stejný dotaz ve třech různých formulacích SQL</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>K</kategorie>
+                            <odkazy>
+                                    <link url="#D16">D16</link>
+                            </odkazy>
+                            <kategorie_popis>K - Všechny klauzule v 1 dotazu - SELECT FROM WHERE GROUP BY HAVING ORDER BY</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>L</kategorie>
+                            <odkazy>
+                                    <link url="#D15">D15</link>
+                            </odkazy>
+                            <kategorie_popis>L - VIEW</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>M</kategorie>
+                            <odkazy>
+                                    <link url="#D22">D22</link>
+                            </odkazy>
+                            <kategorie_popis>M - Dotaz nad pohledem</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>N</kategorie>
+                            <odkazy>
+                                    <link url="#D24">D24</link>
+                            </odkazy>
+                            <kategorie_popis>N - INSERT, který vloží do některé tabulky množinu řádků, které jsou vybrány dotazem z vybraných tabulek (příkaz INSERT, ve kterém je klauzule VALUES nahrazena vnořeným poddotazem.</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>O</kategorie>
+                            <odkazy>
+                                    <link url="#D20">D20</link>
+                            </odkazy>
+                            <kategorie_popis>O - UPDATE s vnořeným SELECT příkazem</kategorie_popis>
+                        </radek>
+                        <radek>
+                            <kategorie>P</kategorie>
+                            <odkazy>
+                                    <link url="#D14">D14</link>
+                            </odkazy>
+                            <kategorie_popis>P - DELETE s vnořeným SELECT příkazem</kategorie_popis>
+                        </radek>
+            </pokryti_dotazu>
+        </queries>
+        <scripts>
+            <title>Scripts</title>
+            <para>
+                <link url="./create.sql">create.sql</link>
+            </para>
+            <para>
+                <link url="./insert.sql">insert.sql</link>
+            </para>
+        </scripts>
+        <conclussions>
+            <title>Závěr</title>
+                    <para>Vytvořením této databáze jsem realizoval téměř všechny myšlenky, které jsem chtěl, a doufám, že tato databáze někomu v budoucnu poslouží. Realizace mé databáze se mi líbila a také mě bavila práce na ní a její vývoj. Děkuji vám za pozornost</para>
+        </conclussions>
+        <references>
+            <title>Zdroje</title>
+                    <para>1. Stránky předmětu DBS.BI-DBS FIT ČVUT Course Pages . Dostupné z: https://courses.fit.cvut.cz</para>
+                    <para>2. Mockaroo Random Data Generator and API Mocking Tool. | JSON / CSV / SQL / Excel . Dostupné z: https://www.mockaroo.com/</para>
+                    <para>3.  Stack Overflow - Where Developers Learn, Share, &amp; Build Careers. Dostupné z: https://stackoverflow.com/</para>
+        </references>
+    </content>
+</sproject>
