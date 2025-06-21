@@ -41,6 +41,7 @@ Main entities:
 
 ### Relational schema
 
+![Relational ER diagram](./relational_schema.png)
 
 
 
